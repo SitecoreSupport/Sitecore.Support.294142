@@ -17,13 +17,12 @@ namespace Sitecore.Support.Marketing.Automation.Activity
 
     protected override bool ShouldMove(IContactProcessingContext context)
     {
-      Condition.Requires<IContactProcessingContext>(context, nameof(context)).IsNotNull<IContactProcessingContext>();
-      if (context.Interaction == null || this.Goals == null || !this.Goals.Any<Guid>())
+      if (base.ShouldMove(context))
       {
-        return false;
+        return true;
       }
 
-      EventCollection events = context.Interaction.Events;
+      var events = context.Contact.Interactions.SelectMany(x => x.Events);
       IEnumerable<Guid> first = events != null ? events.OfType<Goal>().Select<Goal, Guid>((Func<Goal, Guid>)(x => x.DefinitionId)) : (IEnumerable<Guid>)null;
       int? nullable1 = first != null ? new int?(first.Intersect<Guid>((IEnumerable<Guid>)this.Goals).Count<Guid>()) : new int?();
       if (!this.MatchAll)
